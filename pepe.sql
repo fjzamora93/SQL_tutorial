@@ -8,35 +8,22 @@ use pepe;
 
 /*
 OIDO COCINA
-Cuando quieres que un campo no sea nulo, hay que decirlo explicitamente ponienod NOT NULL.
+Cuando quieres que un campo no sea nulo, hay que decirlo explicitamente poniendo NOT NULL.
 Si no definimos como NOT NULL, va a admitir NULO.
 
-DEFAULT "" quiere decir dos cosas -> que por defecto tiene una cadena en blanco.
-								-> que NUNCA será nulo, ya que va a tener un hueco en blanco por defecto.
+DEFAULT "" quiere decir dos cosas -> que NUNCA será nulo, ya que va a tener un hueco en blanco por defecto.
                                 
 DEFAULT NULL es para indicar que por defecto es nulo.
 
-Lo que hay entre paréntesis que es la longitud máxima de ese campo.
+NOT NULL UNIQUE sería una forma de encubrir una clave primaria, aunque lo suyo es hacerlo declariando PRIMARY KEY.
 
- NOT NULL UNIQUE sería una forma de encubrir una clave primaria, aunque lo suyo es hacerlo declariando PRIMARY KEY.
+Lo que hay entre paréntesis que es la longitud máxima de ese campo. Es nuestra primera restricción.
 */
 
 
-/*
-Incluir en las tablas directamente las claves ajenas y después poner restricciones de negocio. No poner las restricciones en la misma creación.
- a las mismas puede crear problemas en cualquier base de datos (especialmente en MySQL). 
- Para prevenirlo, se recomienda hacer las modificaciones y restricciones enna sentencia aparte de la que se usa explícitamente para crear la tabla.
-Esta es la sentencia: 
-
-ALTER TABLE 'clientes'
-	ADD CONSTRAINT 'clientes_ibfk_1' FERIGN KEY ('NSUCURSUAL') REFERENCES 'sucursales' ('NSUCURSAL) ON DELETE NO ACTION
-
-¿Por qué sucede esto? Tiene que ver con el orden en el que se crean las tablas.
-Tú puedes crear una tabla, pero aquella a la que está referenciando es posible que aún no se haya creado.
-*/
 
 CREATE TABLE if not exists directores (
-    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    id INT(11) AUTO_INCREMENT PRIMARY KEY, -- AUTO_INCREMENT generará de forma incremental la ID de forma automática. No hay que introducir el dato.
     nombre VARCHAR(50),
     apellido VARCHAR(50),
     sueldo float DEFAULT NULL
@@ -73,6 +60,20 @@ Primera forma:
     
 En cualquier caso, si vamos al diccionario, no veremos estas FK,
 ya que para eso hace falta meter el ALTER TABLE (una alteración posterior).
+*/
+
+
+/*
+Incluir en las tablas directamente las claves ajenas y después poner restricciones de negocio. No poner las restricciones en la misma creación.
+ a las mismas puede crear problemas en cualquier base de datos (especialmente en MySQL). 
+ Para prevenirlo, se recomienda hacer las modificaciones y restricciones enna sentencia aparte de la que se usa explícitamente para crear la tabla.
+Esta es la sentencia: 
+
+ALTER TABLE 'clientes'
+	ADD CONSTRAINT 'clientes_ibfk_1' FERIGN KEY ('NSUCURSUAL') REFERENCES 'sucursales' ('NSUCURSAL) ON DELETE NO ACTION
+
+¿Por qué sucede esto? Tiene que ver con el orden en el que se crean las tablas.
+Tú puedes crear una tabla, pero aquella a la que está referenciando es posible que aún no se haya creado.
 */
 
 
