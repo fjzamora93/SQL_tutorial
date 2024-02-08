@@ -17,19 +17,9 @@ Lo que hay entre paréntesis que es la longitud máxima de ese campo.
 DROP TABLE pepe.clientes; -> borraría la tabla
 
  NOT NULL UNIQUE sería una forma de encubrir una clave primaria, aunque lo suyo es hacerlo con primary
+ 
+ Todo eto es DML Data Management L
 */
-CREATE TABLE if not exists clientes (
-    DNI CHAR(9) PRIMARY KEY,
-    Nombre VARCHAR(50) NOT NULL,
-    Apellidos VARCHAR(100) NOT NULL,
-    Direccion VARCHAR(255) DEFAULT "",
-    Fecha DATE DEFAULT NULL,
-    Credito DECIMAL(10,2) DEFAULT NULL,
-    nsucusal INT DEFAULT NULL,
-    PRIMARY KEY (DNI),
-    nSucursal INTEGER REFERENCES Sucursales(nSucursal) 
-); 
-
 CREATE TABLE if not exists directores (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(50),
@@ -41,8 +31,23 @@ CREATE TABLE if not exists Sucursales (
     Nombre VARCHAR(100),
     Direccion VARCHAR(255),
     Director INT,
-    FOREIGN KEY (Director) REFERENCES directores(id)
+    -- Esto es lo que hará que el diccionario se lo trague, el constaint. FORMA RECOMENDADA!!!!!!
+    constraint Sucursales_Director_FK1 FOREIGN KEY (Director) REFERENCES directores(id)
 );
+
+CREATE TABLE if not exists clientes (
+    DNI CHAR(9) PRIMARY KEY,
+    Nombre VARCHAR(50) NOT NULL,
+    Apellidos VARCHAR(100) NOT NULL,
+    Direccion VARCHAR(255) DEFAULT "",
+    Fecha DATE DEFAULT NULL,
+    Credito DECIMAL(10,2) DEFAULT NULL,
+    nSucursal INT DEFAULT NULL,
+    constraint Clientes_Sucursales_fk1 foreign key(nSucursal) references Sucursales(nSucursal) -- FORMA NO RECOMENDADA 
+); 
+
+
+
 
 
 
