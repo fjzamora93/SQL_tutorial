@@ -1,8 +1,33 @@
+
+/*
+FORMATO DE SELECCIÓN:
+
+SELECT 
+	nombre_de_columnas AS alias,
+    FUNCIÓN_AGREGACIÓN(columna_que_quieras_agregar) AS alias,
+FROM 
+	tabla_origen
+WHERE 
+	condicion
+	AND (segunda condición)
+GROUP BY 
+	nombre_columna_agrupación
+HAVING 
+	(condición_group_by)
+ODER BY 
+	nombre_columna TIPO_ORDEN;
+
+Consultar apuntes del 13 de Febrero (BBDD 13-02 Primeras Querys)
+para más detalles sobre las consultas.
+    
+*/
+
+
+
 SELECT dni as javier
 FROM clientes as cli;
 
 /* Eso es poner un alias, para que en la salida se vea distinto
-
 */
 
 SELECT distinct(direccion) as casa
