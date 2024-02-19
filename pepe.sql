@@ -30,6 +30,7 @@ CREATE TABLE if not exists directores (
     apellido VARCHAR(50)
 );
 
+/*
 =======
 Lo que hay entre paréntesis que es la longitud máxima de ese campo. Es nuestra primera restricción.
 */
