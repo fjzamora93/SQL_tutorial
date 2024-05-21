@@ -116,19 +116,15 @@ WHERE apellidos LIKE "%López%";
 
 /*______________________CONSULTA 4 y 5______________________*/
 
-  
-SELECT idproyecto FROM asignacion 	
-	WHERE idempleado = 10480;
-
 SELECT nombre FROM proyectos
-	WHERE idproyecto = 3;
+WHERE idproyecto IN (SELECT idproyecto FROM asignacion
+			WHERE idempleado = 10480);
             
-		
 /*______________________CONSULTA 6______________________*/
 
 SELECT * FROM empleados
-	WHERE municipio IN ('Madrid', 'Cordoba');
-
+	WHERE municipio IN (SELECT municipio FROM empleados WHERE municipio LIKE "Madrid") ||
+    municipio IN (SELECT municipio FROM empleados WHERE municipio LIKE "Cordoba");
 
 
 SELECT * FROM empleados 
@@ -177,7 +173,7 @@ SELECT nombre, presupuestos FROM departamentos
   /*______________________CONSULTA 12______________________*/
  /*Sacar todos los empleados del departamento de Diseño y que ganen más de 1500 Euros.*/
  
-SELECT * FROM empleados 
+DELETE FROM empleados 
 WHERE sueldo > 1500 AND 
 idpto IN (SELECT idpto FROM departamentos WHERE nombre LIKE "Diseño");
  
