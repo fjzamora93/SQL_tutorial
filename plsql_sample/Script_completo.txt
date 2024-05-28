@@ -1,0 +1,117 @@
+
+/*==============================================================
+		CREAR TABLAS E INSERTAR DATOS
+================================================================*/
+
+
+CREATE TABLE EMPLOYEES (
+    employee_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100),
+    phone_number VARCHAR(20),
+    hire_date DATE,
+    job_id VARCHAR(10),
+    salary NUMERIC(10, 2),
+    commission_pct NUMERIC(4, 2),
+    manager_id INT,
+    department_id INT
+);
+
+CREATE TABLE JOBS (
+    job_id VARCHAR(10) PRIMARY KEY,
+    job_title VARCHAR(50),
+    min_salary NUMERIC(10, 2),
+    max_salary NUMERIC(10, 2)
+);
+
+-- Inserción de datos para la tabla JOBS
+INSERT INTO JOBS (job_id, job_title, min_salary, max_salary) VALUES ('AD_PRES', 'Presidente', 20000, 40000);
+INSERT INTO JOBS (job_id, job_title, min_salary, max_salary) VALUES ('AD_VP', 'Administración', 15000, 30000);
+INSERT INTO JOBS (job_id, job_title, min_salary, max_salary) VALUES ('AD_IT', 'Programación', 14000, 25000);
+
+
+-- Inserción de datos para la tabla EMPLOYEES
+INSERT INTO EMPLOYEES (employee_id, first_name, last_name, email, phone_number, hire_date, job_id, salary, commission_pct, manager_id, department_id) 
+VALUES (100, 'Jose', 'King', 'steven.king@example.com', '621894231', TO_DATE('2003-06-17', 'YYYY-MM-DD'), 'AD_PRES', 24000, NULL, NULL, 90);
+
+INSERT INTO EMPLOYEES (employee_id, first_name, last_name, email, phone_number, hire_date, job_id, salary, commission_pct, manager_id, department_id) 
+VALUES (101, 'Javier', 'Kochhar', 'neena.kochhar@example.com', '987654321', TO_DATE('2005-09-21', 'YYYY-MM-DD'), 'AD_VP', 17000, NULL, 100, 90);
+
+INSERT INTO EMPLOYEES (employee_id, first_name, last_name, email, phone_number, hire_date, job_id, salary, commission_pct, manager_id, department_id) 
+VALUES  (102, 'Álvaro', 'De Haan', 'lex.dehaan@example.com', '666532692', TO_DATE('2001-01-13', 'YYYY-MM-DD'), 'AD_IT', 21000, NULL, 100, 90);
+
+INSERT INTO EMPLOYEES (employee_id, first_name, last_name, email, phone_number, hire_date, job_id, salary, commission_pct, manager_id, department_id) 
+VALUES  (102, 'Didi', 'De Haan', 'lex.dehaan@example.com', '632790421', TO_DATE('2001-01-13', 'YYYY-MM-DD'), 'AD_IT', 17000, NULL, 100, 90);
+
+
+/*==============================================================
+			PARTE 2 - CREAR FUNCIÓN
+================================================================*/
+
+CREATE OR REPLACE FUNCTION oficio_existe(
+    trabajo jobs.job_id%TYPE
+) RETURN BOOLEAN IS
+    v_job_id jobs.job_id%TYPE;
+BEGIN
+    SELECT job_id INTO v_job_id
+    FROM jobs
+    WHERE trabajo = jobs.job_id;
+    
+    RETURN TRUE;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN FALSE;
+END oficio_existe;
+
+
+/*==============================================================
+			PARTE 1 - CREAR PROCEDURE
+================================================================*/
+
+CREATE OR REPLACE PROCEDURE cambiar_empleado(
+	p_empleado IN OUT employees.employee_id%TYPE,
+	p_oficio IN jobs.job_id%TYPE
+) AS
+	empleado_completo employees%ROWTYPE;
+BEGIN
+	SELECT * 
+	INTO empleado_completo
+	FROM employees
+	WHERE employee_id = p_empleado;
+
+	IF oficio_existe(p_oficio) THEN
+		DBMS_OUTPUT.PUT_LINE('El empleado ' || empleado_completo.first_name || ' antes era: ' || empleado_completo.job_id);
+		empleado_completo.job_id := p_oficio;
+		UPDATE employees
+		SET job_id = empleado_completo.job_id
+		WHERE employee_id = p_empleado;
+		DBMS_OUTPUT.PUT_LINE('El empleado ' || empleado_completo.first_name || ' ahora es: ' || empleado_completo.job_id);
+	ELSE
+		DBMS_OUTPUT.PUT_LINE('El oficio no existe');
+	END IF;
+END;
+/
+
+
+/*==============================================================
+			PARTE 3 - BLOQUE ANÓNIMO
+================================================================*/
+
+DECLARE
+	v_empleado_id employees.employee_id%TYPE;
+	v_oficio jobs.job_id%TYPE;
+
+BEGIN
+	v_empleado_id := 100;
+	v_oficio := 'AD_VP';
+	cambiar_empleado(v_empleado_id, v_oficio);
+	COMMIT;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Manejo de excepciones aquí
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+        ROLLBACK; -- En caso de error, realiza un rollback para deshacer los cambios
+END;
+/

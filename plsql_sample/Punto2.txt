@@ -1,0 +1,23 @@
+/*==============================================================
+			PARTE 2
+================================================================
+El procedimiento ha de llamar a una función que deberá comprobar si el id del oficio existe. Esta tarea la realizará una función aparte a la que se le pasará el oficio por parámetro y retornará un booleano. Si el oficio no existe, el procedimiento informará con un mensaje por consola.*/
+
+--Creamos una función que toma como único parámetro una ID de un trabajo. ¡Cuidado! SIEMPRE devuelve TRUE. 
+CREATE OR REPLACE FUNCTION oficio_existe(
+    trabajo jobs.job_id%TYPE
+) RETURN BOOLEAN IS
+    --Creamos nuestras propias variables locales para operar dentro de la función.
+    v_job_id jobs.job_id%TYPE;
+BEGIN
+    SELECT job_id INTO v_job_id
+    FROM jobs
+    WHERE trabajo = jobs.job_id;
+    
+    RETURN TRUE;
+
+--Puesto que nuestra función siempre va a devolver TRUE. Necesitamos levantar nuestra propia excepción.
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN FALSE;
+END oficio_existe;

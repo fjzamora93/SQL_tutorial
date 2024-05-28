@@ -1,0 +1,62 @@
+
+	/*
+ 		Sin embargo, el dato más llamativo es que una procedimiento
+		admite PARÁMETROS DE SALIDA. Es decir, puede modificar una variable y alterar su valor
+		si se especifica con un OUT en los parámetros de salida.
+		
+		En total, vamos a trabajar con tres tipos de parámetros en los procedimientos:
+		1. De entrada (parametro IN VARCHAR) AS ...
+		2. De salida (parametro OUT PLS_INTEGER) AS ...
+		3. De entrada y salida (parametro IN OUT BOOLEAN) AS...
+	*/
+
+
+CREATE OR REPLACE PROCEDURE par_o_impar(
+    p_numero IN PLS_INTEGER,
+    p_literal OUT VARCHAR2 
+) AS
+BEGIN
+    IF MOD(p_numero, 2) = 0 THEN
+        p_literal := 'par';
+    ELSE
+        p_literal := 'impar';
+    END IF;
+    
+    IF p_numero > 100 THEN
+        RAISE_APPLICATION_ERROR(-20100, 'El número es mayor de 100');
+    END IF;
+END par_o_impar;
+
+
+		--Ahora probaremos nuestro procedimiento con un bucle del 95 al 101.
+
+DECLARE
+    literal VARCHAR2(40);
+BEGIN
+    FOR numero IN 98..101 LOOP
+        par_o_impar(numero, literal);
+        DBMS_OUTPUT.PUT_LINE('El número ' || numero || ' es ' || literal);
+        literal := NULL;
+    END LOOP;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error en bloque PPAL: ' || SQLERRM);
+END;
+/
+
+
+--Llegado a este punto, recuerda volver a consultar el funcionamiento del NOCOPY.
+--El NOCOPY se encarga de pasar las variables por valor y no por referencia, esto es importante.
+--Consulta los apuntes para saber más de cara al examen.
+
+
+
+
+
+
+
+
+
+
+
+

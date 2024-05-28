@@ -1,0 +1,70 @@
+		CONDICIONALES
+==================================================================
+
+A diferencia de Java, al no existir llaves en PL Sql, será necesario
+definir cuándo terminan los condicionales. Para ello utilizaremos la 
+siguiente sintaxis:
+
+SET SERVEROUPUT ON
+
+DECLARE
+    numero PLS_INTEGER := 2;
+BEGIN
+    IF numero = 1 THEN
+        dbms_output.put_line('El número insertado es 1');
+    ELSIF numero = 2 THEN
+        dbms_output.put_line('El número insertado es 2');
+    ELSE
+        dbms_output.put_line('Es otro');
+    END IF;
+END;
+/
+
+
+--------------------------------------------------------
+
+DECLARE 
+    v_dia CHAR(1);
+    literal VARCHAR2(15);
+BEGIN
+    v_dia := TO_CHAR(SYSDATE-1, 'd');
+    CASE v_dia
+        WHEN '1' THEN literal := 'lunes';
+        WHEN '2' THEN literal := 'martes';
+        WHEN '3' THEN literal := 'miércoles';
+        WHEN '4' THEN literal := 'jueves';
+        WHEN '5' THEN literal := 'viernes';
+        WHEN '6' THEN literal := 'sábado';
+        WHEN '7' THEN literal := 'domingo';
+    END CASE;
+    DBMS_OUTPUT.PUT_LINE('Hoy es ' || literal);
+END;
+/
+
+
+--------------------------------------------------------
+DECLARE
+    texto VARCHAR2(100) := 'Hola';
+
+BEGIN
+    CASE texto
+        WHEN 'Hola' THEN
+            dbms_output.put_line('El texto es "Hola"');
+        WHEN 'Adiós' THEN
+            dbms_output.put_line('El texto es "Adiós"');
+        ELSE
+            dbms_output.put_line('El texto es otro');
+    END CASE;
+END;
+
+
+
+
+
+
+
+
+
+
+
+

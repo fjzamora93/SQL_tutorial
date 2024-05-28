@@ -1,0 +1,46 @@
+/*
+Un triger es similar a un procedimiento pero se dispara de forma automática ante un evento.
+
+Estos son los elementos de un Trigger:
+1. Eventos: los más habituales son UPDATE INSERT DELETE OF + nombre tabla / vista.
+2. Momento: El momento puede ser BEFORE / AFTER.
+3. Statement: puede ser FOR EACH ROW (se activa el trigger una vez por fila), o sin poner nada (solo se activa una sola vez).
+4. Restriccion: WHEN + <condicion> puede restringir un evento al saltar el trigger en una fila. Es una sentencia SQL, no una PLSQL.
+5. Existen los valores OLD y NEW. Se usan así: WHEN new.salary < old.salary
+
+
+*/
+
+		--Antes de nuestro ejemplo, crearemos una 'tabla de auditoría', donde irán los datos del trigger.
+
+CREATE TABLE auditaremple (log VARCHAR2(200));
+
+		--Ahora que ya está creada, ya podemos crear nuestro trigger.
+
+CREATE OR REPLACE TRIGGER audit_subida_salario
+	AFTER UPDATE OF salary ON employees
+	FOR EACH ROW
+BEGIN
+	INSERT INTO auditaremple
+	VALUES ('SUBIDA SALARIO EMPLEADO ' || :old.employee_id );
+END;
+/
+
+
+		--De esta manera, si ejecutamos la siguiente sentencia, se disparará el trigger:
+
+UPDATE employees SET salary=18000 WHERE employee_id=100;
+
+
+
+		--OTRO EJEMPLO:
+
+CREATE OR REPLACE TRIGGER audit_borrado_emple
+	BEFORE DELETE ON employees
+	FOR EACH ROW
+BEGIN
+	INSERT INTO auditaremple
+	VALUES ('BORRADO EMPLEADO' || '*' ||:old.employee_id ||'*' ||:old.first_name
+	|| '*Dpto.' ||:old.department_id);
+END;
+/

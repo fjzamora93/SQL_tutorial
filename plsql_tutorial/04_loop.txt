@@ -1,0 +1,65 @@
+La estrucura para iterar con bucles es LOOP .... END LOOP
+
+
+DECLARE
+	contador PLS_INTEGER := 0;
+BEGIN
+	LOOP
+	    DBMS_OUTPUT.PUT_LINE('Número: ' || contador);
+	    contador := contador + 1;
+	    EXIT WHEN contador >= 10; --el exit se puede meter en cualquier lado
+	END LOOP;
+END;
+/
+	
+
+
+_____________________________________________________________________
+			RANGOS
+_____________________________________________________________________
+DECLARE
+	symbol varchar2(10) := ' [o_o] ';
+BEGIN
+	FOR i IN REVERSE 9..0 LOOP
+	    DBMS_OUTPUT.PUT_LINE(i || symbol);
+	END LOOP;
+END;
+/
+	
+
+
+
+
+-----------------------------------------------------------------
+CONTINUE: sirve para interrumpir el flujo y volver al principio del bucle
+_________________________________________________________________
+DECLARE
+    symbol VARCHAR2(10) := ' [o_o] ';
+BEGIN
+    FOR i IN 1..9 LOOP
+        IF MOD(i, 2) = 0 THEN 
+            CONTINUE;
+        ELSE
+            DBMS_OUTPUT.PUT_LINE(i || symbol);
+        END IF;
+    END LOOP;
+END;
+/
+
+
+
+-----------------------------------------------------------------
+			REPETITIVAS
+_________________________________________________________________
+
+DECLARE
+    contador PLS_INTEGER := 0;
+BEGIN
+    WHILE contador < 10
+	LOOP
+	    DBMS_OUTPUT.PUT_LINE('Número: ' || contador);
+	    contador := contador + 1;
+	END LOOP;
+END;
+/
+

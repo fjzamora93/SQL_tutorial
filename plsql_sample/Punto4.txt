@@ -1,0 +1,99 @@
+/*==============================================================
+			PARTE 4
+================================================================
+Crea un trigger que inserte un registro en una tabla nueva
+llamada EMP_AUDIT cada vez que modificamos el salario de un empleado.
+
+Sólo se realizará la operación si el salario que se va a modificar difiere
+del nuevo (¿¿¿MANEJAR UNA EXCEPTION???).
+
+La tabla EMP_AUDIT tendrá los siguientes campos:
+-Identificador del empleado que se está actualizando.
+-El momento en que se hace la actualización.
+-Un mensaje que contenga el salario anterior y el nuevo.
+*/
+
+CREATE TABLE emp_audit(
+	id_employee INTEGER,
+	momento_actualizacion TIMESTAMP,
+	log VARCHAR2(200)
+);
+
+--Ahora que ya está creada, ya podemos crear nuestro trigger.
+
+CREATE OR REPLACE TRIGGER disparador_cambio_salario
+	-- Como le decimos que es la tabla employees, ya no hay que especificarlo después.
+	AFTER UPDATE OF salary ON employees
+	FOR EACH ROW
+DECLARE --el bloque declare no es necesario como tal, es por comodidad
+	mensaje VARCHAR2(200);
+BEGIN	
+	IF :old.salary != :new.salary THEN
+	    mensaje := '-Salario anterior: ' || :old.salary || ' -Salario nuevo: ' || :new.salary;
+
+	    --  Y ahora procedemos con los cambios
+	    INSERT INTO emp_audit
+	    VALUES (
+		:old.employee_id,
+		SYSTIMESTAMP,
+		mensaje 
+	    );
+	ELSE
+	    NULL;
+	END IF;
+END;
+/
+
+/*Finalmente, podemos ejecutar la sentencia correspondiente para ver qué sucede: */
+UPDATE employees SET salary=18000 WHERE employee_id=1;
+SELECT * FROM emp_audit;
+
+--Si volviésemos a ejecutar la misma sentencia, no sucedería nada en absoluto.
+
+
+
+/*AHORA LO VAMOS A HACER UTILIZANDO UN CURSOR ANÓNIMO DENTRO DEL BUCLE FOR*/
+
+DECLARE --Es anónimo, no tenemos nada que declarar.
+BEGIN
+    FOR empleado IN (SELECT employee_id, job_id FROM employees) LOOP
+        UPDATE employees
+        SET salary = CASE
+                        WHEN empleado.job_id = '1' THEN 10000
+                        WHEN empleado.job_id = '2' THEN 20000
+                        WHEN empleado.job_id = '3' THEN 30000
+                        ELSE 40000
+                    END
+        WHERE employee_id = empleado.employee_id;
+    END LOOP;
+END;
+/
+
+
+
+/*AHORA HAREMOS EXACTAMENTE LO MISMO PERO UTILIZANDO UN CURSOR DECLARADO EXPLÍCITAMENTE PARA CAMBIAR EL SUELDO*/
+DECLARE
+	CURSOR cursor_empleados IS SELECT employee_id, job_id FROM employees;
+	v_employee employees.employee_id%TYPE;
+	v_job jobs.job_id%TYPE;
+	v_salario employees.salary%TYPE;
+BEGIN
+    OPEN cursor_empleados;
+	LOOP
+        FETCH cursor_empleados INTO v_employee, v_job;
+        EXIT WHEN cursor_empleados%NOTFOUND;
+        UPDATE employees
+	--Creamos un case para que el sueldo dependa del puesto de trabajo. 
+        SET salary = CASE
+                        WHEN v_job = '1' THEN 10000
+                        WHEN v_job = '2' THEN 22222
+                        WHEN v_job = '3' THEN 30000
+                        ELSE 40000
+                    END
+        WHERE employee_id = v_employee;
+	END LOOP;
+	CLOSE cursor_empleados;
+END;
+/
+
+SELECT * FROM emp_audit;

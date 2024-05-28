@@ -1,0 +1,67 @@
+UF-7 PROGRAMACIÓN AVANZADA DE ACCESO A BASE DE DATOS
+
+Un código PL/SQL se dice que está almacenado cuando el motor de ORACLE lo guarda
+como un componente más de la Base de Datos y, por tanto, se puede soicitar su ejecución desde otro
+PL/SQL o desde otros entornos siempre y cuanso se haya establecido la conexión a nuestra base de datos.
+
+Los bloques almacenados que se pueden crear son:
+	1. Procedimientos: CREATE PROCEDURE ... AS (realizan una acción, va con AS).
+		Además, el procedimineto no tiene por qué estar asignado a una variable, 
+		sin embargo sí que puede tomar una variable como parámetro de SALIDA y 
+		alterar su valor dentro del mismo procedimiento. OJO!!!
+	2. Funciones: CREATE FUNCTION ... IS (devuelven un valor, va con IS)
+		La función OBLIGATORIAMENTE, tiene que estar asignada a una variable.
+	3. Paquetes: CREATE PACKAGE
+	3. Disparadores: CREATE TRIGGER
+
+
+
+
+=======================================================================
+	Ejemplo de función con parámetro de entrada y salida
+=======================================================================
+
+
+CREATE OR REPLACE FUNCTION saludar(nombre_persona VARCHAR2) 
+    RETURN VARCHAR2 IS
+    saludo VARCHAR2(100);
+BEGIN
+    saludo := '¡Hola ' || nombre_persona || '!';
+    RETURN saludo;
+END saludar;
+/
+
+	/*
+	*Después de esto, nuestra función estará lista para ser ejecutada, 
+	*ya que se habrá guardada en LIVE SQL y podremos utilizarla sin problema. 
+	*(creada con éxito). Recuerda que la función, al usarse, debe guardarse en una variable.
+	*Tal como veremos en el siguiente ejemplo:
+	*/
+
+DECLARE
+    saludo_persona VARCHAR2(100);
+BEGIN
+    saludo_persona := saludar('Maria');
+    DBMS_OUTPUT.PUT_LINE(saludo_persona);
+END;
+/
+
+=======================================================================
+	Ejemplo de procedimiento que utiliza la función anterior
+=======================================================================
+
+CREATE OR REPLACE PROCEDURE imprimir_saludo(nombre_persona VARCHAR2) AS
+BEGIN
+    -- Llamamos a la función saludar para obtener el saludo personalizado
+    DBMS_OUTPUT.PUT_LINE(saludar(nombre_persona));
+END imprimir_saludo;
+/
+
+	--Habiendo creado la función y el procedimiento, ahora podemos invocarlo en nuestro LIve.
+
+DECLARE
+    persona VARCHAR2(100) := 'Pepe';
+BEGIN
+    imprimir_saludo(persona);
+END;
+/

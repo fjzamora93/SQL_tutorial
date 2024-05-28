@@ -1,0 +1,21 @@
+Un procedimiento autónomo, en el contexto de PL/SQL, es un procedimiento almacenado 
+que se ejecuta de forma independiente del contexto de una transacción más amplia. 
+Esto significa que no está atado a la transacción que lo llama y puede realizar operaciones de commit y rollback por sí mismo.
+
+Cuando un procedimiento es autónomo, tiene su propia transacción 
+y puede realizar operaciones de modificación de datos 
+(INSERT, UPDATE, DELETE, etc.) y confirmar (COMMIT) o deshacer (ROLLBACK) 
+esas operaciones sin verse afectado por el estado de la transacción externa.
+
+Los procedimientos autónomos son útiles en situaciones donde necesitas realizar operaciones 
+que no deben ser afectadas por el resultado de la transacción principal, 
+o cuando necesitas controlar explícitamente el alcance de una transacción.
+
+La sintaxis es la  siguiente:
+
+	CREATE OR REPLACE PROCEDURE procedimiento_autonomo
+	IS
+    		PRAGMA AUTONOMOUS_TRANSACTION;
+	BEGIN
+    		-- Cuerpo del procedimiento aquí
+	END procedimiento_autonomo; 

@@ -1,0 +1,41 @@
+/*==============================================================
+			PARTE 1
+================================================================
+Crea un procedimiento que reciba un número de empleado y una cadena correspondiente a su nuevo oficio (job_id) como parámetros. El procedimiento deberá localizar el empleado, modificar su oficio por el nuevo y visualizar los cambios realizados.
+*/
+
+
+CREATE OR REPLACE PROCEDURE cambiar_empleado(
+	p_empleado IN OUT employees.employee_id%TYPE,
+	p_oficio IN jobs.job_id%TYPE
+) AS	
+	--Inicializamos una transacción autónoma en el Procedure que no se verá afectada por el bucle principal. 
+	PRAGMA AUTONOMOUS_TRANSACTION;
+
+	--Creamos una var. local para insertar la fila seleccionada con el filtro de los parámetros de nuestro Procedimiento.
+	empleado_completo employees%ROWTYPE;
+BEGIN
+	SELECT * 
+	INTO empleado_completo
+	FROM employees
+	WHERE employee_id = p_empleado;
+
+	-- Llamamos a la función. Si devuelve TRUE, actualizará la tabla empleados.
+	IF oficio_existe(p_oficio) THEN
+		DBMS_OUTPUT.PUT_LINE('El empleado ' || empleado_completo.first_name || ' antes era: ' ||empleado_completo.job_id);
+		empleado_completo.job_id := p_oficio;
+		UPDATE employees
+		SET job_id = empleado_completo.job_id
+		WHERE employee_id = p_empleado;
+		DBMS_OUTPUT.PUT_LINE('El empleado ' || empleado_completo.first_name || ' ahora es: ' || empleado_completo.job_id);
+		
+		--Si la condición se cumple con éxito, nuestra transacción autónoma hará el commit.
+		COMMIT;
+
+	--Si la condición NO se cumple con éxito, nuestra transacción hará un rollback.
+	ELSE
+		DBMS_OUTPUT.PUT_LINE('El oficio no existe');
+		ROLLBACK;
+	END IF;
+END;
+/

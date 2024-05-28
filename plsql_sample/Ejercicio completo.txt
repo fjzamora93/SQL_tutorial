@@ -1,0 +1,172 @@
+/*==============================================================
+			PARTE 2
+================================================================
+El procedimiento ha de llamar a una función que deberá comprobar si el id del oficio existe. Esta tarea la realizará una función aparte a la que se le pasará el oficio por parámetro y retornará un booleano. Si el oficio no existe, el procedimiento informará con un mensaje por consola.*/
+
+--Creamos una función que toma como único parámetro una ID de un trabajo. ¡Cuidado! SIEMPRE devuelve TRUE. 
+CREATE OR REPLACE FUNCTION oficio_existe(
+    trabajo jobs.job_id%TYPE
+) RETURN BOOLEAN IS
+    --Creamos nuestras propias variables locales para operar dentro de la función.
+    v_job_id jobs.job_id%TYPE;
+BEGIN
+    SELECT job_id INTO v_job_id
+    FROM jobs
+    WHERE trabajo = jobs.job_id;
+    
+    RETURN TRUE;
+
+--Puesto que nuestra función siempre va a devolver TRUE. Necesitamos levantar nuestra propia excepción.
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN FALSE;
+END oficio_existe;
+
+/*==============================================================
+			PARTE 1
+================================================================
+Crea un procedimiento que reciba un número de empleado y una cadena correspondiente a su nuevo oficio (job_id) como parámetros. El procedimiento deberá localizar el empleado, modificar su oficio por el nuevo y visualizar los cambios realizados.
+*/
+
+
+CREATE OR REPLACE PROCEDURE cambiar_empleado(
+	p_empleado IN OUT employees.employee_id%TYPE,
+	p_oficio IN jobs.job_id%TYPE
+) AS	
+	--Inicializamos una transacción autónoma en el Procedure que no se verá afectada por el bucle principal. 
+	PRAGMA AUTONOMOUS_TRANSACTION;
+
+	--Creamos una var. local para insertar la fila seleccionada con el filtro de los parámetros de nuestro Procedimiento.
+	empleado_completo employees%ROWTYPE;
+BEGIN
+	SELECT * 
+	INTO empleado_completo
+	FROM employees
+	WHERE employee_id = p_empleado;
+
+	-- Llamamos a la función. Si devuelve TRUE, actualizará la tabla empleados.
+	IF oficio_existe(p_oficio) THEN
+		DBMS_OUTPUT.PUT_LINE('El empleado ' || empleado_completo.first_name || ' antes era: ' ||empleado_completo.job_id);
+		empleado_completo.job_id := p_oficio;
+		UPDATE employees
+		SET job_id = empleado_completo.job_id
+		WHERE employee_id = p_empleado;
+		DBMS_OUTPUT.PUT_LINE('El empleado ' || empleado_completo.first_name || ' ahora es: ' || empleado_completo.job_id);
+		
+		--Si la condición se cumple con éxito, nuestra transacción autónoma hará el commit.
+		COMMIT;
+
+	--Si la condición NO se cumple con éxito, nuestra transacción hará un rollback.
+	ELSE
+		DBMS_OUTPUT.PUT_LINE('El oficio no existe');
+		ROLLBACK;
+	END IF;
+END;
+/
+
+/*==============================================================
+			PARTE 3
+================================================================
+Crea un BLOQUE ANÓNIMO (DECLARE BEGIN END) donde ejecutar el PROCEDIMIENTO
+con los valores de los argumentos recogidos en variables de sustitución 
+*/
+
+
+DECLARE
+	v_empleado_id employees.employee_id%TYPE;
+	v_oficio jobs.job_id%TYPE;
+
+BEGIN
+--AVISO: LIVE SQL NO ADMITE INTRODUCIR POR TECLADO LOS DATOS. Dejamos comentada la línea correspondiente con el '&'.
+	v_empleado_id := 100;
+	v_oficio := 'AD_VP';
+	--cambiar_empleado(&v_empleado_id, &v_oficio);
+	cambiar_empleado(v_empleado_id, v_oficio);
+	COMMIT;
+
+-- Levantamos las excepciones
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Manejo de excepciones aquí
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+        ROLLBACK; -- En caso de error, realiza un rollback para deshacer los cambios
+END;
+/
+
+
+/*SEGUNDO BLOQUE ANÓNIMO, MISMO OBJETIVO PERO AHORA UTILIZANDO UN CUSOR*/
+
+DECLARE
+	CURSOR cursor_empleados IS SELECT employee_id  FROM employees;
+	v_empleado employees.employee_id%TYPE;
+	v_oficio jobs.job_id%TYPE;
+BEGIN
+	OPEN cursor_empleados;
+	--Usamos el cursor para cambiar masivamente a todos los empleados de puesto. Debajo podremo usar el '&' 
+	v_oficio := 'AD_VP';
+	LOOP
+	    FETCH cursor_empleados INTO v_empleado;
+	    EXIT WHEN cursor_empleados%NOTFOUND;
+	    DBMS_OUTPUT.PUT_LINE('Nombre: ' || v_empleado || ' - Antiguo trabajo: ' || v_oficio);
+		cambiar_empleado(v_empleado, v_oficio);
+		--cambiar_empleado(v_empleado, &v_oficio); RECORDAMOS QUE EL '&' NO FUNCIONA EN EL LIVE SQL, DEJAMOS LA LINEA COMENTADA.
+		DBMS_OUTPUT.PUT_LINE('Nombre: ' || v_empleado || ' - Nuevo trabajo: ' || v_oficio);
+	END LOOP;
+	CLOSE cursor_empleados;
+END;
+/
+
+--Hacemos un select para comprobar que los cambios han sido aplicados.
+SELECT * FROM employees;
+/*==============================================================
+			PARTE 4
+================================================================
+Crea un trigger que inserte un registro en una tabla nueva
+llamada EMP_AUDIT cada vez que modificamos el salario de un empleado.
+
+
+La tabla EMP_AUDIT tendrá los siguientes campos:
+-Identificador del empleado que se está actualizando.
+-El momento en que se hace la actualización.
+-Un mensaje que contenga el salario anterior y el nuevo.
+*/
+
+CREATE TABLE emp_audit(
+	id_employee INTEGER,
+	momento_actualizacion TIMESTAMP,
+	log VARCHAR2(200)
+);
+
+--Ahora que ya está creada, ya podemos crear nuestro trigger.
+
+CREATE OR REPLACE TRIGGER disparador_cambio_salario
+	-- Como le decimos que es la tabla employees, ya no hay que especificarlo después.
+	AFTER UPDATE OF salary ON employees
+	FOR EACH ROW
+DECLARE --el bloque declare no es necesario como tal, es por comodidad
+	mensaje VARCHAR2(200);
+BEGIN	
+	IF :old.salary != :new.salary THEN
+	    mensaje := '-Salario anterior: ' || :old.salary || ' -Salario nuevo: ' || :new.salary;
+
+	    --  Y ahora procedemos con los cambios
+	    INSERT INTO emp_audit
+	    VALUES (
+		:old.employee_id,
+		SYSTIMESTAMP,
+		mensaje 
+	    );
+	ELSE
+	    NULL;
+	END IF;
+END;
+/
+
+/*Finalmente, podemos ejecutar la sentencia correspondiente para ver qué sucede: */
+UPDATE employees SET salary=18000 WHERE employee_id=1;
+SELECT * FROM emp_audit;
+
+--Si volviésemos a ejecutar la misma sentencia, no sucedería nada en absoluto.
+
+
+

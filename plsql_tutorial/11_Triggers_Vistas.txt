@@ -1,0 +1,5 @@
+/*
+En este bloque vamos a ver de que manera se comportan los Triggers con las VISTAS: Diapositiva 79.
+*/
+
+		

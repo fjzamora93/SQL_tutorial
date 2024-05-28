@@ -1,0 +1,27 @@
+contraseña: Draelokx100.
+
+
+set serveroutput on
+declare
+
+    v_contador pls_integer:=0; --variable inicializada
+    v_nombre varchar2(30); --variable sin inicializar
+	v_empresa constant char(3) := 'Ted'; --constante
+	v_apellido varchar2(30) not null := 'Sebastian'; -- variable not null
+	v_fecha date := '02/feb/2017';
+
+	v_numero NUMBER := 1.5;
+	v_boolean BOOLEAN := TRUE;
+begin
+    dbms_output.put_line('contador: ' || v_contador);
+	dbms_output.put_line('Empresa: ' || v_empresa);
+	dbms_output.put_line('Fecha: ' || v_fecha);
+
+	dbms_output.put_line('Número: ' || v_numero);
+    --dbms_output.put_line('Booleano: ' || v_boolean); Un booleano no se imprime sin conventirlo.
+    --dbms_output.put_line(' ' || );
+    --dbms_output.put_line(' ' || );
+    --dbms_output.put_line(' ' || );
+	
+end;
+/

@@ -1,0 +1,11 @@
+-- SCRIPT CON UN BUCLE
+
+DECLARE
+	v_num number := 0;
+BEGIN 
+	LOOP
+	v_num := v_num + 1;
+	DBMS_OUTPUT.PUT_LINE('Número: ' || TO_CHAR(v_num));
+	EXIT WHEN v_num = 10;
+	END LOOP;
+END;

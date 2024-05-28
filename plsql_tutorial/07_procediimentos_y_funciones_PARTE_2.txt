@@ -1,0 +1,46 @@
+UF-7 PROGRAMACIÓN AVANZADA DE ACCESO A BASE DE DATOS
+
+-- Vamos a partir del siguiente procedimiento para hacerle una mejora.
+--Ten en cuenta que el 'IN' es la forma de decir que es un parámetro de ENTRADA.
+
+	CREATE OR REPLACE PROCEDURE imprimir_linea(
+    		p_varchar_original IN VARCHAR2, 
+    		p_cuantos IN PLS_INTEGER
+	) AS
+	BEGIN
+    		DBMS_OUTPUT.PUT_LINE(RPAD(p_varchar_original, p_cuantos, p_varchar_original));
+    		-- La función RPAD toma tres parámetros: cadena original, longitud deseada y cadena de relleno.
+	END imprimir_linea;
+
+
+ /*Al igual que en Python, dentro de PLSQL es posible asignar un valor por defecto 
+a los parámetros de una función o un procedimiento. Así es como se haría:  */
+
+	
+	CREATE OR REPLACE PROCEDURE imprimir_linea(
+    		p_varchar_original IN VARCHAR2 DEFAULT '-', 
+    		p_cuantos IN PLS_INTEGER DEFAULT 5 
+	) AS
+
+	BEGIN
+    		DBMS_OUTPUT.PUT_LINE(RPAD(p_varchar_original, p_cuantos, p_varchar_original));
+ 
+	END imprimir_linea;
+
+
+
+--Y ahora ejecutamos el procedimiento recién creado
+	BEGIN
+		--Con los dos parámetros:
+		imprimir_linea('O', 10);
+
+		--Sin parámetros:
+		imprimir_linea();
+
+		--Con el primer parámetro (siempre los tomará en orden):
+		imprimir_linea('X');
+
+		--Definiendo un parámetro en concreto con precisión:
+		imprimir_linea(p_cuantos => 10);
+	end;
+	/

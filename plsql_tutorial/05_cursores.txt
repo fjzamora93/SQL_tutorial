@@ -1,0 +1,65 @@
+Un cursor es la capacidad de seleccionar varios registros dentro de una 
+misma variable y posteriormente iterar sobre esa misma variable
+para desplegar todos los datos que hay dentro del cursor.
+
+Veamos como funciona:
+
+
+DECLARE
+	CURSOR mi_cursor IS SELECT first_name, student_reg_year FROM AD.AD_STUDENT_DETAILS;
+	nombre ad.ad_student_details.first_name%TYPE;
+	fecha ad.ad_student_details.student_reg_year%TYPE;
+
+BEGIN
+	OPEN mi_cursor;
+	LOOP
+	    FETCH mi_cursor INTO nombre, fecha;
+	    EXIT WHEN mi_cursor%NOTFOUND;
+	    DBMS_OUTPUT.PUT_LINE('Nombre: ' || nombre || ' - Fecha: ' || fecha);
+	END LOOP;
+	CLOSE mi_cursor;
+END;
+/
+
+Atributos de los cursores:
+-%ISOPEN: devuelve true si el cursor está abierto.
+-%NOTFOUND: devuelve true si el último fetch no devolvió una fila.
+-%FOUND: devuelve true si el último fetch devolvió una fila.
+-%ROWCOUNT: devuelve un NÚMERO con el total de filas devueltas hasta ahora.
+
+BULK COLLECT: no entra directamente. Simplemente saber que es más eficiente y rápido para acede a la base de datos.
+
+
+/* OTRO EJEMPLO DE UN CURSOR*/
+
+DECLARE
+	CURSOR cursor_empleados IS SELECT employee_id  FROM employees;
+	v_empleado employees.employee_id%TYPE;
+	v_oficio jobs.job_id%TYPE;
+BEGIN
+	OPEN cursor_empleados;
+	--Usamos el cursor para cambiar masivamente a todos los empleados de puesto. Debajo podremo usar el '&' 
+	v_oficio := 2;
+	LOOP
+	    FETCH cursor_empleados INTO v_empleado;
+	    EXIT WHEN cursor_empleados%NOTFOUND;
+	    DBMS_OUTPUT.PUT_LINE('Nombre: ' || v_empleado || ' - Antiguo trabajo: ' || v_oficio);
+		cambiar_empleado(v_empleado, v_oficio);
+		--cambiar_empleado(v_empleado, &v_oficio); RECORDAMOS QUE EL '&' NO FUNCIONA EN EL LIVE SQL, DEJAMOS LA LINEA COMENTADA.
+		DBMS_OUTPUT.PUT_LINE('Nombre: ' || v_empleado || ' - Nuevo trabajo: ' || v_oficio);
+	END LOOP;
+	CLOSE cursor_empleados;
+END;
+/
+
+
+
+
+
+
+
+
+
+
+
+	

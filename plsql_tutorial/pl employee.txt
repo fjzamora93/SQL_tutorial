@@ -1,0 +1,19 @@
+DECLARE
+	v_apel employees.lastname%TYPE;
+	v_salario employees.salary%TYPE;
+
+
+	-- el %TYPE hace que usemos la misma variable de la tabla
+	
+BEGIN
+	SELECT lastname
+	INTO v_apel, v_salario
+	FROM employees
+	WHERE employee_id = 107;
+	
+	--Aquí metemos el SELECT en nuestras variables.
+
+	DBMS_OUTPUT.PUT('Apellido y salario: " || v_apel || v_slario);
+
+END;
+/

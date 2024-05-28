@@ -1,0 +1,41 @@
+/* Una operación habitual es asignar a las variables el valor y el tipo
+de una fila en concreto o de una columna. A continuación vamos a ver cómo se puede asignar
+ambas cosas de forma correcta*/
+
+
+--ROWTYPE: coge un ÚNICO registro y te lo mete en una variable
+
+set serveroutput on
+declare
+	fila_registro AD.AD_ACADEMIC_SESSION%ROWTYPE;
+   
+begin
+   	SELECT * 
+    INTO fila_registro
+    FROM AD.AD_ACADEMIC_SESSION
+    WHERE session_id = 100;
+	--observa que hay que poner qué columna quieres imprimir!!
+    dbms_output.put_line('Fila: ' || fila_registro.session_name );  
+  
+	
+end;
+/
+
+
+
+_______________________________________________________________________
+GUARDAR UN DATO DE UNA COLUMNA EN UNA VARIABLE
+_______________________________________________________________________
+SET SERVEROUTPUT ON
+DECLARE
+    id_estudiante ad.ad_student_details.student_id%TYPE;
+    nombre_estudiante ad.ad_student_details.first_name%TYPE;
+    fecha_estudiante ad.ad_student_details.student_reg_year%TYPE;
+BEGIN
+    SELECT student_id, first_name, student_reg_year
+    INTO id_estudiante, nombre_estudiante, fecha_estudiante
+    FROM AD.AD_STUDENT_DETAILS
+    WHERE student_id = 720;
+    dbms_output.put_line('Id, nombre y fecha: ' || id_estudiante || ', ' || nombre_estudiante || ', ' || fecha_estudiante);
+END;
+/

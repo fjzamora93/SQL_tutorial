@@ -1,0 +1,71 @@
+La principal diferencia entre una función y un procedimiento es que las funciones tienen siempre un RETURN.
+La sintaxis para crear una función es la siguiente:
+
+CREATE OR REPLACE FUNCTION calcular_area_circulo(
+    p_radio IN NUMBER
+) RETURN NUMBER
+IS
+    v_area NUMBER;
+BEGIN
+    v_area := 3.14159 * p_radio * p_radio; -- Fórmula del área del círculo: pi * radio^2
+    RETURN v_area;
+END calcular_area_circulo;
+
+		/*
+		La sintaxis es parecida a la de un procedimientos con estas diferencias:
+		1.- Incluye un RETURN en la creación seguido del TIPO que retorna.
+		2.- Puede retornar %TYPE y %RAWTYPE. Hay que declararlo al principio.
+		3.- Existe una cláusla 'DETERMINISTIC' que ayuda a optimizar.
+		4.- Toda función finaliza con una sentencia RETURN, seguido de la variable.
+		5.- Una función puede tener varias sentencias RETURN, dependiendo de cómo acabe.
+		6.- 
+
+		*/
+
+--Antes de comenzar, vemos qué departamentos existen:
+
+SELECT * FROM AD.AD_DEPARTMENTS;
+
+--Entre los departamentos que existen están el 10, 20, 30 y 40.
+
+
+CREATE OR REPLACE FUNCTION existe_departamento(
+	id_departamento AD.AD_DEPARTMENTS.DEPARTMENT_ID%TYPE,
+	departamento_completo OUT AD.AD_DEPARTMENTS%ROWTYPE)
+	RETURN BOOLEAN AS
+BEGIN
+	SELECT *
+	INTO departamento_completo
+	FROM AD.AD_DEPARTMENTS
+	WHERE DEPARTMENT_ID = id_departamento;
+	RETURN TRUE;
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+	    RETURN FALSE;
+END existe_departamento;
+
+
+
+--Y ahora la ejecutamos.
+
+DECLARE
+	departamento AD.AD_DEPARTMENTS%ROWTYPE;
+	id_departamento PLS_INTEGER := 30;
+BEGIN
+	IF existe_departamento(id_departamento, departamento) THEN
+	    DBMS_OUTPUT.PUT_LINE('Departamento: ' || departamento.DEPARTMENT_NAME);
+	ELSE
+	     DBMS_OUTPUT.PUT_LINE('No existe ese departamento ');
+	END IF;
+
+EXCEPTION
+	WHEN OTHERS THEN
+	     DBMS_OUTPUT.PUT_LINE('Error en bloque anónimo ' || SQLERRM);
+END;
+/	        
+
+
+
+
+
+
